@@ -36,7 +36,28 @@ for dir in os.listdir("data/train"):
             image_list.append(image / 255.)
 image_list = np.array(image_list)
 Y = to_categorical(label_list)
-print(image_list.shape)
+
+for dir in os.listdir("data/test"):
+    if dir == ".DS_Store":
+        continue
+    dir1 = "data/test/" + dir
+    label = 0
+    if dir == "maru":
+        label = 0
+    elif dir == "shikaku":
+        label = 1
+    for file in os.listdir(dir1):
+        if file != ".DS_Store":
+            label_list_test.append(label)
+            filepath = dir1 + "/" + file
+            image = np.array(Image.open(filepath).resize((100, 100)))
+            print(filepath)
+#            image = image.transpose(2, 0, 1)
+            print(image.shape)
+            image_list_test.append(image / 255.)
+image_list_test = np.array(image_list_test)
+Y_test = to_categorical(label_list_test)
+
 model = Sequential()
 model.add(Conv2D(32, (3, 3), padding='same',input_shape=(100,100,3)))
 model.add(Activation("relu"))
@@ -63,5 +84,5 @@ opt = Adam(lr=0.0001)
 
 model.compile(loss="categorical_crossentropy", optimizer=opt, metrics=["accuracy"])
 datagen.fit(image_list)
-model.fit_generator(datagen.flow(image_list, Y,batch_size=50),samples_per_epoch=1000, nb_epoch=300,validation_data=(image_list, Y))
+model.fit_generator(datagen.flow(image_list, Y,batch_size=50),samples_per_epoch=1000, nb_epoch=300,validation_data=(image_list_test, Y_test))
 
